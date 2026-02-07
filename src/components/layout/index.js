@@ -1,0 +1,16 @@
+export { default as Navbar } from './Navbar';
+export { default as AuthNavbar } from './AuthNavbar';
+export { default as Footer } from './Footer';
+export { default as Layout } from './Layout';
+export { default as HeroSection } from './HeroSection';
+export { default as TopPathologies } from './TopPathologies';
+export { default as AboutSection } from './AboutSection';
+export { default as WhyChooseSection } from './WhyChooseSection';
+export { default as TopTests } from './TopTests';
+export { default as HowItWorks } from './HowItWorks';
+export { default as PlatformFeatures } from './PlatformFeatures';
+export { default as BrandsSection } from './BrandsSection';
+export { default as GrowBusiness } from './GrowBusiness';
+export { default as LoggedInNavbar } from './LoggedInNavbar';
+export { default as UserFooter } from './UserFooter';
+export { default as ContactSection } from './ContactSection';
