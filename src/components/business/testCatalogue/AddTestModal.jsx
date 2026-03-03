@@ -9,8 +9,7 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
         category: '',
         subCategories: [], // Array for multiple subcategories
         price: '',
-        isActive: true,
-        images: []
+        isActive: true
     });
     const [loading, setLoading] = useState(false);
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
@@ -81,14 +80,10 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
             data.append('price', formData.price);
             data.append('isActive', formData.isActive);
 
-            if (formData.images) {
-                formData.images.forEach(file => {
-                    data.append('images', file);
-                });
-            }
+            // No images appended here anymore as per requirement
 
             await onAdd(data);
-            setFormData({ name: '', subtitle: '', category: '', subCategories: [], price: '', isActive: true, images: [] });
+            setFormData({ name: '', subtitle: '', category: '', subCategories: [], price: '', isActive: true });
             onClose();
         } catch (error) {
             console.error('Error adding test:', error);
@@ -206,27 +201,6 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
                                 </div>
                             )}
                         </div>
-                    </div>
-
-                    {/* Images */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Test Images (Max 2)
-                        </label>
-                        <input
-                            type="file"
-                            onChange={(e) => {
-                                const files = Array.from(e.target.files);
-                                if (files.length > 2) {
-                                    alert('You can only upload up to 2 images');
-                                    return;
-                                }
-                                setFormData(prev => ({ ...prev, images: files }));
-                            }}
-                            multiple
-                            accept="image/*"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
-                        />
                     </div>
 
                     {/* Price */}

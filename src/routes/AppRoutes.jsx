@@ -21,6 +21,7 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 import BusinessDashboard from '../pages/business/BusinessDashboard';
 import BusinessDetails from '../pages/business/BusinessDetails';
 import TestCatalogue from '../pages/business/TestCatalogue';
+import OfferManagement from '../pages/business/OfferManagement';
 
 // Dummy Component for placeholder pages
 const PlaceholderPage = ({ title }) => (
@@ -69,6 +70,7 @@ const AppRoutes = () => {
             <Route path="/business/dashboard" element={<BusinessDashboard />} />
             <Route path="/business/details" element={<BusinessDetails />} />
             <Route path="/business/test-catalogue" element={<TestCatalogue />} />
+            <Route path="/business/offers" element={<OfferManagement />} />
         </Routes>
     );
 };

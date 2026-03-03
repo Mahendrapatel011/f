@@ -35,7 +35,7 @@ const ActionButtons = ({ profileCompletion = 0 }) => {
             bgColor: 'bg-gray-100',
             hoverColor: 'hover:bg-gray-200 cursor-pointer',
             textColor: 'text-gray-700',
-            action: () => console.log('Offers Clicked'),
+            action: () => navigate('/business/offers'),
             disabled: false
         },
     ];

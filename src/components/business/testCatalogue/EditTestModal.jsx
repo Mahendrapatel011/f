@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IoCloseOutline, IoCloudUploadOutline } from 'react-icons/io5';
+import { IoCloseOutline } from 'react-icons/io5';
 
 const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, subCategories = [], masterTests = [] }) => {
     const [formData, setFormData] = useState({
@@ -10,7 +10,6 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
         price: '',
         isActive: true
     });
-    const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -36,7 +35,6 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
             } else {
                 setImagePreview(null);
             }
-            setImageFile(null);
         }
     }, [test]);
 
@@ -72,18 +70,6 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
         }
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const handleSubCategoryToggle = (subId) => {
         setFormData(prev => {
             const currentSubCats = prev.subCategories || [];
@@ -116,9 +102,7 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
             data.append('subCategories[]', scId);
         });
 
-        if (imageFile) {
-            data.append('images', imageFile);
-        }
+        // No image added here anymore
 
         try {
             await onUpdate(test._id, data);
@@ -172,37 +156,17 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    {/* Image Upload */}
+                    {/* Current Image (Read-only) */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Test Image
+                            Test Image (Business Profile Picture)
                         </label>
-                        <div className="flex items-center space-x-4">
-                            <div className="w-24 h-24 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative group">
-                                {imagePreview ? (
-                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                ) : (
-                                    <IoCloudUploadOutline className="text-3xl text-gray-400" />
-                                )}
-                                <input
-                                    type="file"
-                                    onChange={handleImageChange}
-                                    accept="image/*"
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-xs text-gray-500 mb-2">
-                                    Click box to upload new image.
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => document.querySelector('input[type="file"]').click()}
-                                    className="text-sm text-[#1a237e] font-semibold hover:underline"
-                                >
-                                    Change Image
-                                </button>
-                            </div>
+                        <div className="w-24 h-24 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
+                            {imagePreview ? (
+                                <img src={imagePreview} alt="Test" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-gray-400 text-xs text-center p-2">No Image</div>
+                            )}
                         </div>
                     </div>
 

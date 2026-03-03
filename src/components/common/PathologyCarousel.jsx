@@ -1,9 +1,13 @@
 import { useRef } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import PathologyCard from './PathologyCard';
+import { useCart } from '../../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const PathologyCarousel = ({ title = "Continue Exploring", items = [] }) => {
     const scrollContainerRef = useRef(null);
+    const { addToCart } = useCart();
+    const navigate = useNavigate();
 
     const scroll = (direction) => {
         const container = scrollContainerRef.current;
@@ -45,8 +49,9 @@ const PathologyCarousel = ({ title = "Continue Exploring", items = [] }) => {
                         <PathologyCard
                             key={index}
                             {...item}
-                            // Ensure image prop is passed correctly; if item has 'images' array, use first one
                             image={item.image || (item.images && item.images[0])}
+                            onAddToCart={() => addToCart(item.id || item._id)}
+                            onBookNow={() => navigate(`/test/${item.id || item._id}`)}
                         />
                     ))}
                 </div>

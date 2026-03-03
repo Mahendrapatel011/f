@@ -7,11 +7,13 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 const SKIP_MOBILE_OTP = true;
 
 const Login = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -47,8 +49,7 @@ const Login = () => {
                     // Skip OTP for mobile logins if enabled
                     if (SKIP_MOBILE_OTP && isMobile) {
                         if (response.data.data?.token) {
-                            localStorage.setItem('token', response.data.data.token);
-                            localStorage.setItem('user', JSON.stringify(response.data.data.customer));
+                            login(response.data.data.customer, response.data.data.token);
                             toast.success('Login successful!');
                             navigate('/listing');
                             return;
@@ -65,8 +66,7 @@ const Login = () => {
                     });
                 } else {
                     toast.success('Login successful!');
-                    localStorage.setItem('token', response.data.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.data.customer));
+                    login(response.data.data.customer, response.data.data.token);
                     navigate('/listing');
                 }
             }

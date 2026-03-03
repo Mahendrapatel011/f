@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HiLocationMarker, HiShoppingCart, HiHome, HiUserCircle, HiSun, HiMoon } from 'react-icons/hi';
 import { useLocationContext } from '../../context/LocationContext';
+import { useCart } from '../../context/CartContext';
 
 const LoggedInNavbar = () => {
+    const { cart } = useCart();
     const [darkMode, setDarkMode] = useState(false);
     const { location: userLocation, updateLocation } = useLocationContext();
     const location = useLocation(); // Router location
@@ -74,9 +76,11 @@ const LoggedInNavbar = () => {
                         {/* Cart */}
                         <Link to="/cart" className="relative text-[#1e3a5f] hover:text-[#2d5a8e] transition-colors p-2">
                             <HiShoppingCart size={28} />
-                            <span className="absolute top-1 right-1 w-4 h-4 bg-[#e23744] text-white text-[10px] flex items-center justify-center rounded-full font-bold">
-                                0
-                            </span>
+                            {cart?.items?.length > 0 && (
+                                <span className="absolute top-1 right-1 w-4 h-4 bg-[#e23744] text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                                    {cart.items.length}
+                                </span>
+                            )}
                         </Link>
 
                         {/* Conditional: Home icon on profile/cart page, Profile icon elsewhere */}

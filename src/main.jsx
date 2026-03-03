@@ -4,11 +4,17 @@ import './index.css'
 import App from './App.jsx'
 
 import { LocationProvider } from './context/LocationContext.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
+import { CartProvider } from './context/CartContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <LocationProvider>
-      <App />
-    </LocationProvider>
+    <AuthProvider>
+      <LocationProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </LocationProvider>
+    </AuthProvider>
   </StrictMode>,
 )

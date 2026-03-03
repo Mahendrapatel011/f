@@ -7,10 +7,12 @@ import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import FilterSidebar from '../../components/common/FilterSidebar';
 import SortSidebar from '../../components/common/SortSidebar';
+import { useCart } from '../../context/CartContext';
 
 const PathologyListing = () => {
     const navigate = useNavigate();
     const { location } = useLocationContext();
+    const { addToCart } = useCart();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +22,11 @@ const PathologyListing = () => {
     const [loading, setLoading] = useState(false);
 
     const itemsPerPage = 4;
-    const totalPages = 10; // TODO: Get from backend
+    const totalPages = Math.ceil(pathologies.length / itemsPerPage);
+    const paginatedPathologies = pathologies.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     // Filter options
     const filters = [
@@ -162,8 +168,12 @@ const PathologyListing = () => {
 
     const handleSearch = (query) => {
         setSearchQuery(query);
-        setCurrentPage(1);
     };
+
+    // Reset to page 1 when search or filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedFilters, selectedSort, location]);
 
     const handleVoiceSearch = () => {
         console.log('Voice search activated');
@@ -185,7 +195,6 @@ const PathologyListing = () => {
 
     const handleApplyFilters = () => {
         console.log('Applying filters:', selectedFilters);
-        setCurrentPage(1);
     };
 
     const handleApplySort = () => {
@@ -193,7 +202,7 @@ const PathologyListing = () => {
     };
 
     const handleAddToCart = (pathology) => {
-        console.log('Added to cart:', pathology);
+        addToCart(pathology.id);
     };
 
     const handleBookNow = (item) => {
@@ -246,8 +255,8 @@ const PathologyListing = () => {
                             <>
                                 {/* Cards Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center">
-                                    {pathologies.length > 0 ? (
-                                        pathologies.map((pathology) => (
+                                    {paginatedPathologies.length > 0 ? (
+                                        paginatedPathologies.map((pathology) => (
                                             <PathologyCard
                                                 key={pathology.id}
                                                 image={pathology.image}
@@ -271,13 +280,15 @@ const PathologyListing = () => {
                                 </div>
 
                                 {/* Pagination */}
-                                <div className="mt-8">
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={handlePageChange}
-                                    />
-                                </div>
+                                {pathologies.length > itemsPerPage && (
+                                    <div className="mt-8">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={handlePageChange}
+                                        />
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

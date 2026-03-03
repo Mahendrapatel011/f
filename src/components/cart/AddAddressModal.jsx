@@ -6,7 +6,7 @@ import Button from '../common/Button';
 const AddAddressModal = ({ isOpen, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         name: '',
-        address: '',
+        addressLine: '',
         city: '',
         state: '',
         country: '',
@@ -35,7 +35,7 @@ const AddAddressModal = ({ isOpen, onClose, onSave }) => {
     const handleDiscard = () => {
         setFormData({
             name: '',
-            address: '',
+            addressLine: '',
             city: '',
             state: '',
             country: '',
@@ -98,9 +98,9 @@ const AddAddressModal = ({ isOpen, onClose, onSave }) => {
                         </label>
                         <input
                             type="text"
-                            name="address"
+                            name="addressLine"
                             placeholder="Address (House no., building, area, etc)"
-                            value={formData.address}
+                            value={formData.addressLine}
                             onChange={handleChange}
                             required
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
@@ -188,7 +188,7 @@ const AddAddressModal = ({ isOpen, onClose, onSave }) => {
                             type="submit"
                             variant="secondary"
                             size="md"
-                            disabled={loading || !formData.name || !formData.address || !formData.city}
+                            disabled={loading || !formData.name || !formData.addressLine || !formData.city}
                             className="flex-1"
                         >
                             {loading ? 'Saving...' : 'Save'}

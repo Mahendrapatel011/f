@@ -12,99 +12,96 @@ import {
     AddressSuccessModal
 } from '../../components/cart';
 import PathologyCarousel from '../../components/common/PathologyCarousel';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 
 const CartPage = () => {
-    // State
-    const [cartItems, setCartItems] = useState([
-        {
-            id: 1,
-            name: 'Pathology Name',
-            image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
-            rating: 3.0,
-            reviews: 70,
-            price: 3000,
-            originalPrice: 5000,
-            discount: 40,
-            testName: 'CBC Test',
-            isSelected: true
-        },
-        {
-            id: 2,
-            name: 'Pathology Name',
-            image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
-            rating: 3.0,
-            reviews: 74,
-            price: 3000,
-            originalPrice: 5000,
-            discount: 40,
-            testName: 'CBC Test',
-            isSelected: true
-        }
-    ]);
+    const { cart, loading, removeFromCart, toggleSelection, clearCart } = useCart();
+    const { user, token } = useAuth();
+
+    // Convert cart items to easier format
+    const cartItems = cart?.items?.map(item => ({
+        id: item.test._id,
+        name: item.test.business?.businessName || 'Lab Name',
+        image: (item.test.images && item.test.images[0]) || (item.test.business?.profileImage) || 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
+        rating: item.test.business?.rating || 0,
+        reviews: item.test.business?.reviews || 0,
+        price: item.test.price || 0,
+        originalPrice: null, // Test model doesn't have originalPrice currently
+        discount: null,
+        testName: item.test.name,
+        isSelected: item.isSelected
+    })) || [];
 
     const [selectedAddress, setSelectedAddress] = useState(null);
-    const [savedAddresses, setSavedAddresses] = useState([
-        {
-            id: 1,
-            name: 'John Doe',
-            address: '354A, Ishan Park, Patel Nagar',
-            city: 'Bhopal',
-            state: 'Madhya Pradesh',
-            pincode: '462022',
-            country: 'India'
-        },
-        {
-            id: 2,
-            name: 'John Doe',
-            address: '354A, Ishan Park, Patel Nagar',
-            city: 'Bhopal',
-            state: 'Madhya Pradesh',
-            pincode: '462023',
-            country: 'India'
-        }
-    ]);
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [addressLoading, setAddressLoading] = useState(false);
+
+    // Fetch addresses
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            if (!token) return;
+            setAddressLoading(true);
+            try {
+                const res = await axios.get('http://localhost:5000/api/auth/addresses', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data.success) {
+                    const mapped = res.data.data.map(addr => ({
+                        id: addr._id,
+                        name: addr.name,
+                        address: addr.addressLine,
+                        city: addr.city,
+                        state: addr.state,
+                        pincode: addr.pincode,
+                        country: addr.country
+                    }));
+                    setSavedAddresses(mapped);
+                    // Select default or first address
+                    if (mapped.length > 0) setSelectedAddress(mapped[0]);
+                }
+            } catch (error) {
+                console.error('Error fetching addresses:', error);
+            } finally {
+                setAddressLoading(false);
+            }
+        };
+        fetchAddresses();
+    }, [token]);
 
     // Modal states
     const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
     const [isChangeAddressOpen, setIsChangeAddressOpen] = useState(false);
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-    // Continue exploring items
-    const exploreItems = [
-        {
-            id: 101,
-            name: 'Pathology Name',
-            image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
-            rating: 4.5,
-            reviews: 120,
-            price: 3000,
-            originalPrice: 5000,
-            discount: 35,
-            testName: 'CBC Test'
-        },
-        {
-            id: 102,
-            name: 'Pathology Name',
-            image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
-            rating: 4.2,
-            reviews: 85,
-            price: 3000,
-            originalPrice: 5000,
-            discount: 35,
-            testName: 'Lipid Profile'
-        },
-        {
-            id: 103,
-            name: 'Pathology Name',
-            image: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=300',
-            rating: 4.8,
-            reviews: 200,
-            price: 3000,
-            originalPrice: 5000,
-            discount: 35,
-            testName: 'Thyroid Profile'
-        }
-    ];
+    const [exploreItems, setExploreItems] = useState([]);
+
+    // Fetch exploration items
+    useEffect(() => {
+        const fetchExplore = async () => {
+            try {
+                const res = await axios.get('http://localhost:5000/api/public/labs');
+                if (res.data.success) {
+                    const mapped = res.data.data.slice(0, 8).map(t => ({
+                        id: t._id,
+                        name: t.businessName,
+                        image: (t.images && t.images[0]) || t.businessLogo,
+                        rating: t.rating,
+                        reviews: t.reviews,
+                        price: t.price,
+                        testName: t.name
+                    }));
+                    setExploreItems(mapped);
+                }
+            } catch (error) {
+                console.error('Error fetching explore items:', error);
+            }
+        };
+        fetchExplore();
+    }, []);
 
     // Calculations
     const selectedItems = cartItems.filter(item => item.isSelected);
@@ -130,37 +127,56 @@ const CartPage = () => {
 
     // Handlers
     const handleSelectItem = (id) => {
-        setCartItems(prev =>
-            prev.map(item =>
-                item.id === id ? { ...item, isSelected: !item.isSelected } : item
-            )
-        );
+        toggleSelection(id);
     };
 
-    const handleSelectAll = () => {
+    const handleSelectAll = async () => {
         const allSelected = cartItems.every(item => item.isSelected);
-        setCartItems(prev =>
-            prev.map(item => ({ ...item, isSelected: !allSelected }))
-        );
+        // This is a bit inefficient via API, but following the pattern
+        for (const item of cartItems) {
+            if (item.isSelected === allSelected) {
+                await toggleSelection(item.id);
+            }
+        }
     };
 
     const handleRemoveItem = (id) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
+        removeFromCart(id);
     };
 
-    const handleRemoveSelected = () => {
-        setCartItems(prev => prev.filter(item => !item.isSelected));
+    const handleRemoveSelected = async () => {
+        const selected = cartItems.filter(item => item.isSelected);
+        for (const item of selected) {
+            await removeFromCart(item.id);
+        }
     };
 
-    const handleAddAddress = (addressData) => {
-        const newAddress = {
-            id: Date.now(),
-            ...addressData
-        };
-        setSavedAddresses(prev => [...prev, newAddress]);
-        setSelectedAddress(newAddress);
-        setIsAddAddressOpen(false);
-        setIsSuccessOpen(true);
+    const handleAddAddress = async (addressData) => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/auth/addresses', addressData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                const mapped = res.data.data.map(addr => ({
+                    id: addr._id,
+                    name: addr.name,
+                    address: addr.addressLine,
+                    city: addr.city,
+                    state: addr.state,
+                    pincode: addr.pincode,
+                    country: addr.country
+                }));
+                setSavedAddresses(mapped);
+                const newAddr = mapped[mapped.length - 1];
+                setSelectedAddress(newAddr);
+                setIsAddAddressOpen(false);
+                setIsSuccessOpen(true);
+                toast.success('Address saved successfully');
+            }
+        } catch (error) {
+            console.error('Error saving address:', error);
+            toast.error('Failed to save address');
+        }
     };
 
     const handleSelectAddress = (addressId) => {
@@ -192,6 +208,7 @@ const CartPage = () => {
                         {/* Delivery Address */}
                         <DeliveryAddress
                             address={selectedAddress}
+                            loading={addressLoading}
                             onAddAddress={() => setIsAddAddressOpen(true)}
                             onChangeAddress={() => setIsChangeAddressOpen(true)}
                         />

@@ -67,7 +67,10 @@ const PathologyCard = ({
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={onAddToCart}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAddToCart?.(e);
+                        }}
                         className="flex-1 text-sm py-2 px-0"
                     >
                         Add to Cart
@@ -75,7 +78,10 @@ const PathologyCard = ({
                     <Button
                         variant="secondary"
                         size="sm"
-                        onClick={onBookNow}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onBookNow?.(e);
+                        }}
                         className="flex-1 text-sm py-2 px-0"
                     >
                         Book Now
