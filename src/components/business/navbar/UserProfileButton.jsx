@@ -26,10 +26,10 @@ const UserProfileButton = ({ userData, onClick, isOpen }) => {
 
             {/* User Info - Hidden on mobile */}
             <div className="hidden md:flex flex-col items-start">
-                <span className="text-xl font-semibold text-gray-800 leading-tight">
+                <span className="text-sm font-semibold text-gray-800 leading-tight capitalize">
                     {userData.ownerName || userData.name}
                 </span>
-                <span className="text-xs text-gray-500 leading-tight">
+                <span className="text-xs text-gray-500 leading-tight capitalize">
                     {userData.businessName}
                 </span>
             </div>

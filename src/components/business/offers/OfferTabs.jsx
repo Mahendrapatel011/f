@@ -4,6 +4,8 @@ const OfferTabs = ({ activeTab, setActiveTab, counts }) => {
     const tabs = [
         { id: 'active', label: `Active Offer (${counts.active})` },
         { id: 'scheduled', label: `Scheduled (${counts.scheduled})` },
+        { id: 'pending', label: `Pending (${counts.pending || 0})` },
+        { id: 'rejected', label: `Rejected (${counts.rejected || 0})` },
         { id: 'expired', label: `Expired (${counts.expired})` }
     ];
 

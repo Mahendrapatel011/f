@@ -5,8 +5,10 @@ import Button from '../common/Button';
 const CartItem = ({
     item,
     isSelected = true,
+    collectionType,
     onSelect,
-    onRemove
+    onRemove,
+    isApplied = false
 }) => {
     const {
         id,
@@ -17,12 +19,14 @@ const CartItem = ({
         price,
         originalPrice,
         discount,
-        testName
+        testName,
+        businessAddress,
+        offer
     } = item;
 
     return (
         <div className="relative flex flex-col p-4 bg-white rounded-xl border border-gray-200 
-            w-full sm:w-[200px] flex-shrink-0">
+            w-[200px] flex-shrink-0">
 
             {/* Selection Checkbox */}
             {onSelect && (
@@ -37,11 +41,11 @@ const CartItem = ({
                 </div>
             )}
 
-            {/* Discount Badge */}
-            {discount && (
+            {/* Offer Badge Overlay - Top Right */}
+            {offer && (
                 <div className="absolute top-3 right-3 z-10">
-                    <span className="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
-                        {discount}% OFF
+                    <span className="bg-yellow-400 text-black text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm border border-yellow-500">
+                        {offer.discountType === 'percentage' ? `${offer.discountValue}% OFF` : `₹${offer.discountValue} OFF`}
                     </span>
                 </div>
             )}
@@ -69,13 +73,26 @@ const CartItem = ({
                 </div>
 
                 {/* Price */}
-                <div className="flex items-center gap-2 mb-2">
-                    <span className="font-bold text-gray-900">₹{price?.toLocaleString()}</span>
-                    {originalPrice && (
-                        <span className="text-sm text-gray-400 line-through">
-                            ₹{originalPrice?.toLocaleString()}
-                        </span>
-                    )}
+                <div className="flex flex-col mb-2">
+                    <div className="flex items-center gap-2">
+                        {offer && isApplied ? (
+                            <>
+                                <span className="font-bold text-gray-900 text-base">
+                                    ₹{Math.max(0, price - (offer.discountType === 'percentage' ? (price * offer.discountValue / 100) : offer.discountValue)).toLocaleString()}
+                                </span>
+                                <span className="text-xs text-gray-400 line-through">
+                                    ₹{price?.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] text-green-600 font-bold">
+                                    {offer.discountType === 'percentage' ? `${offer.discountValue}% OFF` : `₹${offer.discountValue} OFF`}
+                                </span>
+                            </>
+                        ) : (
+                            <span className="font-bold text-gray-900 text-base">
+                                ₹{price?.toLocaleString()}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Test Name */}
@@ -101,7 +118,7 @@ const CartItem = ({
                         onClick={() => onSelect(id)}
                         className="flex-1 !py-2 !px-2 text-xs"
                     >
-                        {isSelected ? 'Selected' : 'Checkout'}
+                        {isSelected ? 'Selected' : 'Select'}
                     </Button>
                 )}
             </div>

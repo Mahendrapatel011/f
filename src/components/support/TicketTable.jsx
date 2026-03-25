@@ -44,7 +44,7 @@ const TicketTable = ({ tickets = [], onViewTicket, onDeleteTicket }) => {
                         <tbody>
                             {tickets.map((ticket) => (
                                 <tr
-                                    key={ticket.id}
+                                    key={ticket._id}
                                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                                 >
                                     {/* Ticket ID */}
@@ -81,7 +81,7 @@ const TicketTable = ({ tickets = [], onViewTicket, onDeleteTicket }) => {
                                                 View
                                             </Button>
                                             <button
-                                                onClick={(e) => handleDelete(e, ticket.id)}
+                                                onClick={(e) => handleDelete(e, ticket._id)}
                                                 className="p-2 text-[#E11D48] hover:bg-red-50 rounded-lg 
                                                     transition-colors"
                                                 title="Delete ticket"

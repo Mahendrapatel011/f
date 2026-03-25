@@ -6,3 +6,4 @@ export { default as RaiseTicketModal } from './RaiseTicketModel';
 export { default as ViewTicketModal } from './ViewTicketModal';
 export { default as ChatWidget } from './ChatWidget';
 export { default as DeleteConfirmModal } from './DeleteConfirmModal';
+export { default as EditTicketModal } from './EditTicketModal';

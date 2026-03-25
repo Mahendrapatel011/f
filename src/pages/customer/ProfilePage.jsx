@@ -1,5 +1,6 @@
 // pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import ProfileSidebar from '../../components/profile/ProfileSidebar';
 import ProfileForm from '../../components/profile/ProfileForm';
@@ -14,7 +15,8 @@ import Button from '../../components/common/Button';
 import profileService from '../../services/profileService';
 
 const ProfilePage = () => {
-    const [activeTab, setActiveTab] = useState('profile');
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'profile');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);

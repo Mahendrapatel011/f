@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
+import PrescriptionEditorModal from './PrescriptionEditorModal';
 
 const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, subCategories = [], masterTests = [] }) => {
+    const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         subtitle: '',
         category: '',
         subCategories: [],
         price: '',
+        homeCollection: false,
         isActive: true
     });
     const [imagePreview, setImagePreview] = useState(null);
@@ -24,6 +27,7 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
                 category: test.category?._id || test.category || '',
                 subCategories: test.subCategories?.map(sc => sc?._id || sc) || [],
                 price: test.price || '',
+                homeCollection: test.homeCollection ?? false,
                 isActive: test.isActive ?? true
             });
 
@@ -95,6 +99,7 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
         data.append('subtitle', formData.subtitle);
         data.append('category', formData.category);
         data.append('price', formData.price);
+        data.append('homeCollection', formData.homeCollection);
         data.append('isActive', formData.isActive);
 
         // Append subcategories as array
@@ -215,14 +220,24 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
 
                     {/* Subtitle/Note */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Subtitle / Note
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Subtitle / Note
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsPrescriptionModalOpen(true)}
+                                className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold hover:bg-blue-100 transition-colors"
+                            >
+                                Write Prescription
+                            </button>
+                        </div>
                         <input
                             type="text"
                             name="subtitle"
                             value={formData.subtitle}
                             onChange={handleChange}
+                            placeholder="e.g., No Contrast Required"
                             className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
                         />
                     </div>
@@ -255,20 +270,36 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
                         </div>
                     </div>
 
-                    {/* Price */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Price (₹) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={formData.price}
-                            onChange={handleChange}
-                            required
-                            min="0"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
-                        />
+                    {/* Home Collection & Price Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Home Collection
+                            </label>
+                            <select
+                                name="homeCollection"
+                                value={formData.homeCollection}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
+                            >
+                                <option value={false}>Not Available</option>
+                                <option value={true}>Available</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Price (₹) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleChange}
+                                required
+                                min="0"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
+                            />
+                        </div>
                     </div>
 
                     {/* Buttons */}
@@ -293,6 +324,13 @@ const EditTestModal = ({ isOpen, onClose, onUpdate, onDelete, test, categories, 
                         </button>
                     </div>
                 </form>
+
+                <PrescriptionEditorModal
+                    isOpen={isPrescriptionModalOpen}
+                    onClose={() => setIsPrescriptionModalOpen(false)}
+                    initialText={formData.subtitle}
+                    onSave={(text) => setFormData(prev => ({ ...prev, subtitle: text }))}
+                />
             </div>
         </div>
     );

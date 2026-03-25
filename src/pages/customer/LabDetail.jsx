@@ -3,12 +3,18 @@ import { useLocation, useParams } from 'react-router-dom';
 import { FaClock, FaUserMd, FaFlask, FaStar, FaSearch, FaChevronDown, FaRegStar } from 'react-icons/fa';
 import { Footer } from '../../components/layout';
 import { Button, Rating, Badge, ReviewCard, ImageGallery, PathologyCarousel } from '../../components/common';
+import { useCart } from '../../context/CartContext';
+import { useNavigate } from 'react-router-dom';
+
 
 import axios from 'axios';
 
 const LabDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { addToCart } = useCart();
     const routerLocation = useLocation();
+
     const isTestPage = routerLocation.pathname.includes('/test/');
 
     const [labData, setLabData] = useState(null);
@@ -41,10 +47,29 @@ const LabDetail = () => {
                         try {
                             const simRes = await axios.get(`http://localhost:5000/api/public/tests/${id}/similar`);
                             if (simRes.data.success) {
-                                setSimilarTests(simRes.data.data.map(t => ({
-                                    ...t,
-                                    image: formatImageUrl(t.image)
-                                })));
+                                setSimilarTests(simRes.data.data.map(t => {
+                                    let testImageUrl = null;
+                                    if (t.images && t.images.length > 0) {
+                                        testImageUrl = formatImageUrl(t.images[0]);
+                                    } else if (t.image) {
+                                        testImageUrl = formatImageUrl(t.image);
+                                    } else if (t.business?.profileImage) {
+                                        testImageUrl = formatImageUrl(t.business.profileImage);
+                                    } else if (t.businessLogo) {
+                                        testImageUrl = formatImageUrl(t.businessLogo);
+                                    }
+
+                                    return {
+                                        id: t._id,
+                                        name: t.businessName || t.business?.businessName,
+                                        testName: t.name,
+                                        price: t.price,
+                                        rating: t.rating || t.business?.rating,
+                                        reviews: t.reviews || t.business?.reviews,
+                                        offer: t.offer,
+                                        image: testImageUrl || 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=600'
+                                    };
+                                }));
                             }
                         } catch (simErr) {
                             console.error('Error fetching similar tests:', simErr);
@@ -57,7 +82,7 @@ const LabDetail = () => {
 
                         const allImages = [
                             ...(test.images || []),
-
+                            lab.profileImage,
                         ].filter(Boolean).map(formatImageUrl);
 
                         setLabData({
@@ -68,6 +93,7 @@ const LabDetail = () => {
                             priceMin: test.price,
                             priceMax: test.price,
                             discount: 0,
+                            offer: test.offer,
                             note: '*Pick & Drop charges vary as per the location KMs.',
                             images: allImages.length > 0 ? allImages : ['https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=600'],
                             testName: test.name,
@@ -102,6 +128,7 @@ const LabDetail = () => {
                             priceMin: tests.length > 0 ? Math.min(...prices) : 0,
                             priceMax: tests.length > 0 ? Math.max(...prices) : 0,
                             discount: 0,
+                            activeOffers: data.activeOffers || [], // Full lab page might have multiple offers
                             note: '*Pick & Drop charges vary as per the location KMs.',
                             images: allImages.length > 0 ? allImages : ['https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=600'],
                             testName: 'Available Tests',
@@ -111,7 +138,9 @@ const LabDetail = () => {
                                 experience: lab.yearsOfExperience || 'N/A'
                             },
                             testsOffered: tests.map(t => ({
+                                id: t._id,
                                 name: t.name,
+                                offer: t.offer,
                                 subCategories: t.subCategories?.map(sc => sc.name) || []
                             })),
                             workingHours: lab.workingHours ?
@@ -132,11 +161,12 @@ const LabDetail = () => {
     }, [id, isTestPage]);
 
     const handleAddToCart = () => {
-        console.log('Add to cart:', labData.id);
+        addToCart(labData.id);
     };
 
     const handleBookNow = () => {
-        console.log('Book now:', labData.id);
+        addToCart(labData.id);
+        navigate('/cart');
     };
 
     if (loading) {
@@ -164,6 +194,7 @@ const LabDetail = () => {
                                 <ImageGallery
                                     images={labData.images}
                                     discount={labData.discount}
+                                    offer={labData.offer || (labData.activeOffers && labData.activeOffers[0])}
                                     onWishlist={(status) => console.log('Wishlist:', status)}
                                 />
                                 <div className="flex gap-4 mt-6">
@@ -204,6 +235,34 @@ const LabDetail = () => {
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">{labData.note}</p>
                                 </div>
+
+                                {/* Offer Section */}
+                                {(labData.offer || (labData.activeOffers && labData.activeOffers.length > 0)) && (
+                                    <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-100">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="bg-green-500 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">Special Offer</span>
+                                        </div>
+                                        {labData.offer ? (
+                                            <div>
+                                                <h3 className="font-bold text-gray-900 text-sm">{labData.offer.title}</h3>
+                                                <p className="text-gray-600 text-xs mt-1">
+                                                    Use code <span className="font-bold text-green-600 underline">{labData.offer.offerCode}</span> to get {labData.offer.discountType === 'percentage' ? `${labData.offer.discountValue}%` : `₹${labData.offer.discountValue}`} off on this test.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {labData.activeOffers.slice(0, 2).map((off, idx) => (
+                                                    <div key={idx} className={idx > 0 ? "pt-3 border-t border-green-100" : ""}>
+                                                        <h3 className="font-bold text-gray-900 text-sm">{off.title}</h3>
+                                                        <p className="text-gray-600 text-xs mt-1">
+                                                            Use code <span className="font-bold text-green-600 underline">{off.offerCode}</span> to get {off.discountType === 'percentage' ? `${off.discountValue}%` : `₹${off.discountValue}`} off.
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="mb-6 pb-6 border-b border-gray-100">
                                     <h2 className="font-bold text-gray-900 mb-2">{labData.testName}</h2>
                                     <p className="text-gray-600 text-sm">

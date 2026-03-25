@@ -1,14 +1,17 @@
 // components/business/testCatalogue/AddTestModal.jsx
 import React, { useState, useEffect } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
+import PrescriptionEditorModal from './PrescriptionEditorModal';
 
 const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories = [], masterTests = [] }) => {
+    const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         subtitle: '',
         category: '',
         subCategories: [], // Array for multiple subcategories
         price: '',
+        homeCollection: false,
         isActive: true
     });
     const [loading, setLoading] = useState(false);
@@ -78,12 +81,13 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
             });
 
             data.append('price', formData.price);
+            data.append('homeCollection', formData.homeCollection);
             data.append('isActive', formData.isActive);
 
             // No images appended here anymore as per requirement
 
             await onAdd(data);
-            setFormData({ name: '', subtitle: '', category: '', subCategories: [], price: '', isActive: true });
+            setFormData({ name: '', subtitle: '', category: '', subCategories: [], price: '', homeCollection: false, isActive: true });
             onClose();
         } catch (error) {
             console.error('Error adding test:', error);
@@ -162,9 +166,18 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
 
                     {/* Subtitle/Note */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Subtitle / Note
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Subtitle / Note
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsPrescriptionModalOpen(true)}
+                                className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold hover:bg-blue-100 transition-colors"
+                            >
+                                Write Prescription
+                            </button>
+                        </div>
                         <input
                             type="text"
                             name="subtitle"
@@ -203,21 +216,37 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
                         </div>
                     </div>
 
-                    {/* Price */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Price (₹) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={formData.price}
-                            onChange={handleChange}
-                            placeholder="e.g., 3500"
-                            required
-                            min="0"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
-                        />
+                    {/* Home Collection & Price Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Home Collection
+                            </label>
+                            <select
+                                name="homeCollection"
+                                value={formData.homeCollection}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
+                            >
+                                <option value={false}>Not Available</option>
+                                <option value={true}>Available</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Price (₹) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleChange}
+                                placeholder="e.g., 3500"
+                                required
+                                min="0"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a237e] focus:ring-1 focus:ring-[#1a237e]"
+                            />
+                        </div>
                     </div>
 
                     {/* Submit Button */}
@@ -229,6 +258,13 @@ const AddTestModal = ({ isOpen, onClose, onAdd, categories = [], subCategories =
                         {loading ? 'Adding...' : 'Add Test'}
                     </button>
                 </form>
+
+                <PrescriptionEditorModal
+                    isOpen={isPrescriptionModalOpen}
+                    onClose={() => setIsPrescriptionModalOpen(false)}
+                    initialText={formData.subtitle}
+                    onSave={(text) => setFormData(prev => ({ ...prev, subtitle: text }))}
+                />
             </div>
         </div>
     );

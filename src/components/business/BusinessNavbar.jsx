@@ -58,7 +58,7 @@ const BusinessNavbar = () => {
 
     return (
         <>
-            <nav className="w-full bg-white border-b border-gray-200 shadow-sm relative z-50">
+            <nav className="w-full bg-white border-b border-gray-200 shadow-sm sticky top-0 z-[60]">
                 <div className="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-[80px] md:h-[100px]">
                         {/* Logo Section */}
@@ -74,6 +74,37 @@ const BusinessNavbar = () => {
                         <div className="flex items-center gap-6">
                             {/* Notification Bell */}
 
+                            {/* Toggle Lab Status */}
+                            <div className="flex items-center gap-3 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                                <span className={`text-[13px] font-semibold ${userData.isActive ? 'text-green-600' : 'text-gray-500'}`}>
+                                    {userData.isActive ? 'Lab Active' : 'Lab Inactive'}
+                                </span>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const token = localStorage.getItem('businessToken');
+                                            const newStatus = !userData.isActive;
+                                            const response = await axios.put('http://localhost:5000/api/business/auth/profile', 
+                                                { isActive: newStatus },
+                                                { headers: { Authorization: `Bearer ${token}` } }
+                                            );
+                                            if (response.data.success) {
+                                                setUserData({ ...userData, isActive: newStatus });
+                                                localStorage.setItem('businessData', JSON.stringify({ ...userData, isActive: newStatus }));
+                                            }
+                                        } catch (error) {
+                                            console.error("Failed to toggle status", error);
+                                        }
+                                    }}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none 
+                                        ${userData.isActive ? 'bg-green-500' : 'bg-gray-300'}`}
+                                >
+                                    <span
+                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                                            ${userData.isActive ? 'translate-x-6' : 'translate-x-1'}`}
+                                    />
+                                </button>
+                            </div>
 
                             {/* User Profile */}
                             <UserProfileButton

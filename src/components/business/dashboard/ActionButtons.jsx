@@ -1,7 +1,6 @@
-// components/business/dashboard/ActionButtons.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUpload, FaFileAlt, FaTag, FaLock } from 'react-icons/fa';
+import { FaUpload, FaFileAlt, FaTag, FaLock, FaBullhorn } from 'react-icons/fa';
 
 const ActionButtons = ({ profileCompletion = 0 }) => {
     const navigate = useNavigate();
@@ -37,6 +36,27 @@ const ActionButtons = ({ profileCompletion = 0 }) => {
             textColor: 'text-gray-700',
             action: () => navigate('/business/offers'),
             disabled: false
+        },
+        {
+            id: 5,
+            label: 'My Ledger',
+            icon: <FaBullhorn />, // Change to generic/money later, just reusing imported
+            bgColor: 'bg-indigo-600',
+            hoverColor: 'hover:bg-indigo-700 cursor-pointer',
+            textColor: 'text-white',
+            action: () => navigate('/business/ledger'),
+            disabled: false
+        },
+        {
+            id: 4,
+            label: 'Req Ad',
+            icon: <FaBullhorn />,
+            bgColor: 'bg-green-600',
+            hoverColor: 'hover:bg-green-700 cursor-pointer',
+            textColor: 'text-white',
+            action: () => navigate('/business/ads'),
+            disabled: profileCompletion < 75,
+            disabledMessage: 'Complete profile to request ads'
         },
     ];
 

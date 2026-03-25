@@ -5,18 +5,18 @@ const LocationContext = createContext();
 export const useLocationContext = () => useContext(LocationContext);
 
 export const LocationProvider = ({ children }) => {
-    // Default location
-    const [location, setLocation] = useState({
-        pincode: '462022',
-        city: 'Bhopal',
-        area: 'Indrapuri'
+    // Initialize location from localStorage or use default
+    const [location, setLocation] = useState(() => {
+        const storedLocation = localStorage.getItem('userLocation');
+        return storedLocation ? JSON.parse(storedLocation) : {
+            pincode: '462022',
+            city: 'Bhopal',
+            area: 'Indrapuri'
+        };
     });
 
     useEffect(() => {
-        const storedLocation = localStorage.getItem('userLocation');
-        if (storedLocation) {
-            setLocation(JSON.parse(storedLocation));
-        }
+        // No longer need to load from localStorage here as it's done in useState initializer
     }, []);
 
     const updateLocation = (newLocation) => {

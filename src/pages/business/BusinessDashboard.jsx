@@ -7,13 +7,18 @@ import StatsCard from '../../components/business/dashboard/StatsCard';
 import ActionButtons from '../../components/business/dashboard/ActionButtons';
 import MonthlyAnalytics from '../../components/business/dashboard/MonthlyAnalytics';
 import NotificationsPanel from '../../components/business/dashboard/NotificationsPanel';
+import NewBookingsModal from '../../components/business/dashboard/NewBookingsModal';
 import { calculateProfileCompletion } from '../../utils/profileCompletion';
+import bookingService from '../../services/bookingService';
 
 const BusinessDashboard = () => {
 
 
     const [business, setBusiness] = useState(null);
     const [kycStatus, setKycStatus] = useState('pending'); // pending, submitted, verified, rejected
+    const [stats, setStats] = useState({ bookings: 0, reports: 0, patients: 0, payments: 0 });
+    const [pendingBookings, setPendingBookings] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -46,36 +51,69 @@ const BusinessDashboard = () => {
             }
         };
 
+        const fetchStats = async () => {
+            try {
+                const res = await bookingService.getBusinessStats();
+                if (res.success) {
+                    setStats(res.data);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        };
+
+        const fetchPending = async () => {
+            try {
+                const res = await bookingService.getBusinessBookings();
+                if (res.success) {
+                    const pending = res.data.filter(b => b.orderStatus === 'pending');
+                    setPendingBookings(pending);
+                }
+            } catch (error) {
+                console.error('Error fetching pending bookings:', error);
+            }
+        };
+
         fetchBusinessData();
+        fetchStats();
+        fetchPending();
     }, [navigate]);
 
     const statsData = [
-        { id: 1, title: 'Bookings', value: '121', icon: 'calendar', color: 'blue' },
-        { id: 2, title: 'Reports', value: '45', icon: 'document', color: 'yellow' },
-        { id: 3, title: 'Patients', value: '350', icon: 'patient', color: 'orange' },
-        { id: 4, title: 'Payments', value: '8200', icon: 'rupee', color: 'green' },
+        { id: 1, title: 'Bookings', value: stats.bookings, icon: 'calendar', color: 'blue', path: '/business/bookings' },
+        { id: 2, title: 'Reports', value: stats.reports, icon: 'document', color: 'yellow', path: '/business/test-catalogue' },
+        { id: 3, title: 'Patients', value: stats.patients, icon: 'patient', color: 'orange', path: '/business/bookings' },
+        { id: 4, title: 'Payments', value: `₹${Number(stats.payments).toLocaleString()}`, icon: 'rupee', color: 'green', path: '/business/payments' },
     ];
 
     // Dynamic Notifications based on KYC
     const getNotifications = () => {
-        const baseNotifications = [
-            {
-                id: 1,
+        const baseNotifications = [];
+
+        // Add real pending bookings to notifications
+        pendingBookings.forEach(booking => {
+            baseNotifications.push({
+                id: booking._id,
                 message: 'New booking received from',
-                highlight: 'Aman Singh',
-                details: 'for 21 June, 10:00 AM',
-                time: '20m ago',
-                type: 'booking'
-            },
-            {
-                id: 2,
-                message: 'Booking cancelled by user',
-                highlight: 'Ramesh Kumar',
-                details: '(24 June, 3:00 PM).',
-                time: '1hr ago',
-                type: 'cancel'
-            },
-        ];
+                highlight: booking.customer?.name,
+                details: `for ${new Date(booking.scheduledDate).toLocaleDateString('en-GB')}, ${booking.timeSlot}`,
+                time: 'Just now',
+                type: 'booking',
+                onClick: () => setIsModalOpen(true)
+            });
+        });
+
+        // Other static/system notifications
+        if (baseNotifications.length === 0) {
+            baseNotifications.push({
+                id: 'no-new',
+                message: 'No new booking requests at the moment.',
+                highlight: '',
+                details: '',
+                time: '',
+                type: 'info'
+            });
+        }
 
         if (kycStatus === 'verified') {
             baseNotifications.unshift({
@@ -112,7 +150,7 @@ const BusinessDashboard = () => {
             <main className="w-full max-w-[1150px] mx-auto px-4 py-6">
                 {/* Welcome Header & KYC Alert */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[#1a237e]">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#1a237e] capitalize">
                         Welcome back, {business?.ownerName || 'Business User'}!
                     </h1>
 
@@ -149,10 +187,13 @@ const BusinessDashboard = () => {
                     )}
                 </div>
 
-                {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     {statsData.map((stat) => (
-                        <StatsCard key={stat.id} {...stat} />
+                        <StatsCard
+                            key={stat.id}
+                            {...stat}
+                            onClick={() => navigate(stat.path)}
+                        />
                     ))}
                 </div>
 
@@ -165,6 +206,25 @@ const BusinessDashboard = () => {
                     <NotificationsPanel notifications={notifications} />
                 </div>
             </main>
+
+            <NewBookingsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                bookings={pendingBookings}
+                onRefresh={() => {
+                    // Logic to refresh pending and stats
+                    const fetchPending = async () => {
+                        const res = await bookingService.getBusinessBookings();
+                        if (res.success) setPendingBookings(res.data.filter(b => b.orderStatus === 'pending'));
+                    };
+                    const fetchStats = async () => {
+                        const res = await bookingService.getBusinessStats();
+                        if (res.success) setStats(res.data);
+                    };
+                    fetchPending();
+                    fetchStats();
+                }}
+            />
         </div>
     );
 };

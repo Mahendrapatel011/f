@@ -7,3 +7,4 @@ export { default as CartSummary } from './CartSummary';
 export { default as AddAddressModal } from './AddAddressModal';
 export { default as ChangeAddressModal } from './ChangeAddressModal';
 export { default as AddressSuccessModal } from './AddressSuccessModal';
+export { default as AvailableOffers } from './AvailableOffers';

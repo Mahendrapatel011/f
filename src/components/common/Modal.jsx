@@ -46,7 +46,7 @@ const Modal = ({
         >
             <div
                 className={`bg-white rounded-2xl shadow-2xl w-full ${sizes[size]} 
-                    transform transition-all animate-fadeIn`}
+                    transform transition-all animate-fadeIn max-h-[90vh] flex flex-col`}
             >
                 {/* Header */}
                 {(title || showCloseButton) && (
@@ -69,7 +69,7 @@ const Modal = ({
                 )}
 
                 {/* Content */}
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-6 overflow-y-auto">
                     {children}
                 </div>
             </div>

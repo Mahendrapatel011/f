@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa';
 
-const ImageGallery = ({ 
-    images = [], 
+const ImageGallery = ({
+    images = [],
     discount = null,
+    offer = null,
     onWishlist,
-    isWishlisted = false 
+    isWishlisted = false
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [wishlisted, setWishlisted] = useState(isWishlisted);
@@ -35,12 +36,19 @@ const ImageGallery = ({
 
                 {/* Discount Badge - FIXED */}
                 {discount > 0 && (
-                    <span className="absolute top-4 left-4 bg-[#1e3a5f] text-white text-xs font-semibold px-3 py-1 rounded">
+                    <span className="absolute top-4 left-4 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">
                         {discount}% OFF
                     </span>
                 )}
 
-                
+                {/* Offer Badge (Top Right) */}
+                {offer && (
+                    <span className="absolute top-4 right-4 bg-green-500 text-white text-[10px] uppercase font-bold px-3 py-1.5 rounded shadow-sm border border-green-400 z-10">
+                        {offer.title}
+                    </span>
+                )}
+
+
 
                 {/* Navigation Arrows */}
                 {images.length > 1 && (
@@ -67,9 +75,8 @@ const ImageGallery = ({
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`w-2 h-2 rounded-full transition-colors ${
-                                    index === currentIndex ? 'bg-white' : 'bg-white/50'
-                                }`}
+                                className={`w-2 h-2 rounded-full transition-colors ${index === currentIndex ? 'bg-white' : 'bg-white/50'
+                                    }`}
                             />
                         ))}
                     </div>

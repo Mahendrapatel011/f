@@ -17,11 +17,18 @@ import PathologyListing from '../pages/customer/PathologyListing';
 import LabDetail from '../pages/customer/LabDetail';
 import ProfilePage from '../pages/customer/ProfilePage';
 import CartPage from '../pages/customer/CartPage';
+import Checkout from '../pages/customer/Checkout';
+import BlogDetailPage from '../pages/customer/BlogDetailPage';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 import BusinessDashboard from '../pages/business/BusinessDashboard';
 import BusinessDetails from '../pages/business/BusinessDetails';
 import TestCatalogue from '../pages/business/TestCatalogue';
 import OfferManagement from '../pages/business/OfferManagement';
+import AdManagement from '../pages/business/AdManagement';
+import LedgerManagement from '../pages/business/LedgerManagement';
+import BookingManagement from '../pages/business/BookingManagement';
+import GenerateReport from '../pages/business/GenerateReport';
+import PaymentHistory from '../pages/business/PaymentHistory';
 
 // Dummy Component for placeholder pages
 const PlaceholderPage = ({ title }) => (
@@ -61,6 +68,8 @@ const AppRoutes = () => {
                 <Route path="lab/:id" element={<ProtectedRoute><LabDetail /></ProtectedRoute>} />
                 <Route path="test/:id" element={<ProtectedRoute><LabDetail /></ProtectedRoute>} />
                 <Route path="cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+                <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                <Route path="blog/:slug" element={<BlogDetailPage />} />
 
                 {/* Catch-all for 404 */}
                 <Route path="*" element={<PlaceholderPage title="404 - Not Found" />} />
@@ -71,6 +80,11 @@ const AppRoutes = () => {
             <Route path="/business/details" element={<BusinessDetails />} />
             <Route path="/business/test-catalogue" element={<TestCatalogue />} />
             <Route path="/business/offers" element={<OfferManagement />} />
+            <Route path="/business/ads" element={<AdManagement />} />
+            <Route path="/business/ledger" element={<LedgerManagement />} />
+            <Route path="/business/bookings" element={<BookingManagement />} />
+            <Route path="/business/payments" element={<PaymentHistory />} />
+            <Route path="/business/generate-report" element={<GenerateReport />} />
         </Routes>
     );
 };

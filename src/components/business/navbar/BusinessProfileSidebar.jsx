@@ -1,6 +1,6 @@
 // components/business/navbar/BusinessProfileSidebar.jsx
 import { useNavigate } from 'react-router-dom';
-import { FaTimes, FaUser, FaCamera } from 'react-icons/fa';
+import { FaTimes, FaUser, FaCamera, FaBullhorn } from 'react-icons/fa';
 import ProfileMenuItem from './ProfileMenuItem';
 import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 import { MdOutlineSecurity } from 'react-icons/md';
@@ -63,6 +63,15 @@ const BusinessProfileSidebar = ({ isOpen, onClose, userData, onProfileUpdate }) 
             subtitle: 'Get help and contact us',
             link: '/business/support'
         },
+        {
+            id: 4,
+            icon: <FaBullhorn className="w-5 h-5" />, // Replaced with any generic icon or use existing Bi Support if needed.
+            iconBg: 'bg-green-100',
+            iconColor: 'text-green-600',
+            title: 'Payments & Ledger',
+            subtitle: 'Track commissions & dues',
+            link: '/business/ledger'
+        },
     ];
 
     return (
@@ -116,8 +125,8 @@ const BusinessProfileSidebar = ({ isOpen, onClose, userData, onProfileUpdate }) 
                                 <FaCamera className="w-3 h-3 text-white" />
                             </button>
                         </div>
-                        <h3 className="text-base font-semibold text-gray-800">{userData.name || userData.ownerName}</h3>
-                        <p className="text-sm text-gray-500">{userData.businessName}</p>
+                        <h3 className="text-base font-semibold text-gray-800 capitalize">{userData.name || userData.ownerName}</h3>
+                        <p className="text-sm text-gray-500 capitalize">{userData.businessName}</p>
 
                         {/* Profile Completion Progress */}
                         <div className="w-full px-6 mt-4">

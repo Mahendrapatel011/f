@@ -2,7 +2,7 @@
 import React from 'react';
 import { FaCalendarAlt, FaFileAlt, FaUser, FaRupeeSign } from 'react-icons/fa';
 
-const StatsCard = ({ title, value, icon, color }) => {
+const StatsCard = ({ title, value, icon, color, onClick }) => {
     const getIcon = () => {
         const iconClass = "text-xl";
         switch (icon) {
@@ -30,7 +30,10 @@ const StatsCard = ({ title, value, icon, color }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-3">
+        <div
+            onClick={onClick}
+            className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-3 transition-all ${onClick ? 'cursor-pointer hover:shadow-md hover:border-blue-200 active:scale-95' : ''}`}
+        >
             <div className={`w-10 h-10 ${getBgColor()} rounded-lg flex items-center justify-center flex-shrink-0`}>
                 {getIcon()}
             </div>

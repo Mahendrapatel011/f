@@ -5,6 +5,8 @@ const OfferCard = ({ offer, onEdit, onDelete }) => {
     const isExpired = offer.status === 'expired';
     const isScheduled = offer.status === 'scheduled';
     const isActive = offer.status === 'active';
+    const isPending = offer.status === 'pending';
+    const isRejected = offer.status === 'rejected';
 
     const formatDate = (date) => {
         return new Date(date).toLocaleDateString('en-US', {
@@ -23,7 +25,9 @@ const OfferCard = ({ offer, onEdit, onDelete }) => {
                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
                     ${isActive ? 'bg-blue-100 text-[#1a237e]' :
                         isScheduled ? 'bg-gray-100 text-gray-600' :
-                            'bg-red-50 text-red-600'}`}>
+                            isPending ? 'bg-yellow-100 text-yellow-700' :
+                                isRejected ? 'bg-red-100 text-red-700' :
+                                    'bg-red-50 text-red-600'}`}>
                     {offer.status}
                 </span>
             </div>

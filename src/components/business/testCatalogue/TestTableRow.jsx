@@ -1,22 +1,36 @@
 // components/business/testCatalogue/TestTableRow.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import ToggleSwitch from './ToggleSwitch';
+import ViewPrescriptionModal from './ViewPrescriptionModal';
 
 const TestTableRow = ({ test, onToggleStatus, onEdit }) => {
+    const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
+    const isLongNote = test.subtitle?.length > 100;
+
     return (
         <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
             {/* Test Name */}
-            <td className="py-4 px-4">
+            <td className="py-4 px-4 w-[45%]">
                 <div>
                     <p className="font-medium text-[#1a237e] text-sm md:text-base">
                         {test.name}
                     </p>
                     {test.subtitle && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                            {test.subtitle}
-                        </p>
+                        <div className="mt-1 flex items-center gap-2 max-w-md">
+                            <p className="text-xs text-gray-400 truncate flex-1">
+                                {test.subtitle}
+                            </p>
+                        
+                        </div>
                     )}
                 </div>
+
+                <ViewPrescriptionModal
+                    isOpen={isPrescriptionModalOpen}
+                    onClose={() => setIsPrescriptionModalOpen(false)}
+                    text={test.subtitle}
+                    title={`${test.name} - Full Prescription`}
+                />
             </td>
 
             {/* Category */}

@@ -51,7 +51,11 @@ const PathologyCarousel = ({ title = "Continue Exploring", items = [] }) => {
                             {...item}
                             image={item.image || (item.images && item.images[0])}
                             onAddToCart={() => addToCart(item.id || item._id)}
-                            onBookNow={() => navigate(`/test/${item.id || item._id}`)}
+                            onBookNow={async () => {
+                                await addToCart(item.id || item._id);
+                                navigate('/cart');
+                            }}
+                            onClick={() => navigate(`/test/${item.id || item._id}`)}
                         />
                     ))}
                 </div>

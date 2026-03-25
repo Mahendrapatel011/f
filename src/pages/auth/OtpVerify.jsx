@@ -6,11 +6,15 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
+
 
 const OtpVerify = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [otp, setOtp] = useState(['', '', '', '']);
+
     const [timer, setTimer] = useState(269); // 4:29 in seconds
     const [isExpired, setIsExpired] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -105,8 +109,7 @@ const OtpVerify = () => {
 
                 if (mode === 'registration' || mode === 'login') {
                     // Save token and login user
-                    localStorage.setItem('token', response.data.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.data.customer));
+                    login(response.data.data.customer, response.data.data.token);
                     navigate('/listing');
                 } else if (mode === 'reset') {
                     // Navigate to set new password with OTP and email

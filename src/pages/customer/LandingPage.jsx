@@ -9,6 +9,7 @@ import PlatformFeatures from '../../components/layout/PlatformFeatures';
 import GrowBusiness from '../../components/layout/GrowBusiness';
 import BrandsSection from '../../components/layout/BrandsSection';
 import ContactSection from '../../components/layout/ContactSection';
+import BlogSection from '../../components/layout/BlogSection';
 import { useLocation } from 'react-router-dom';
 
 
@@ -41,6 +42,7 @@ const LandingPage = () => {
             <HowItWorks />
             <GrowBusiness />
             <PlatformFeatures />
+            <BlogSection />
             <BrandsSection />
             <div id="contact">
                 <ContactSection />

@@ -42,6 +42,7 @@ const BusinessDetails = () => {
         // Address
         fullAddress: '',
         pinCode: '',
+        subArea: '',
         city: '',
         state: '',
         country: '',
@@ -100,6 +101,7 @@ const BusinessDetails = () => {
                     // Address
                     fullAddress: data.address?.fullAddress || data.kycData?.address || '',
                     pinCode: data.address?.pincode || data.kycData?.pincode || '',
+                    subArea: data.address?.subArea || data.kycData?.subArea || '',
                     city: data.address?.city || data.kycData?.city || '',
                     state: data.address?.state || data.kycData?.state || '',
                     country: data.address?.country || 'India',
@@ -124,6 +126,7 @@ const BusinessDetails = () => {
                     ownerIdProofUrl: idProof || null,
                     fullAddress: data.address?.fullAddress || data.kycData?.address || '',
                     pinCode: data.address?.pincode || data.kycData?.pincode || '',
+                    subArea: data.address?.subArea || data.kycData?.subArea || '',
                     city: data.address?.city || data.kycData?.city || '',
                     state: data.address?.state || data.kycData?.state || '',
                     country: data.address?.country || 'India',
@@ -224,6 +227,7 @@ const BusinessDetails = () => {
             const addressObj = {
                 fullAddress: formData.fullAddress,
                 pincode: formData.pinCode,
+                subArea: formData.subArea,
                 city: formData.city,
                 state: formData.state,
                 country: formData.country,

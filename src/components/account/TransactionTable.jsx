@@ -8,7 +8,7 @@ const TransactionTable = ({ transactions = [], onShowMore }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredTransactions = transactions.filter(txn =>
-        txn.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        txn._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         txn.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -63,18 +63,18 @@ const TransactionTable = ({ transactions = [], onShowMore }) => {
                     <tbody>
                         {filteredTransactions.length > 0 ? (
                             filteredTransactions.map((txn) => (
-                                <tr 
-                                    key={txn.id} 
+                                <tr
+                                    key={txn._id}
                                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                                 >
                                     <td className="py-3 px-4">
-                                        <span className="text-sm text-gray-700 font-medium">
-                                            {txn.id}
+                                        <span className="text-sm text-gray-700 font-medium text-xs">
+                                            {txn._id}
                                         </span>
                                     </td>
                                     <td className="py-3 px-4">
                                         <div className="flex items-center gap-2">
-                                            {txn.type === 'Sent' ? (
+                                            {txn.type === 'debit' ? (
                                                 <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
                                                     <FaArrowUp className="text-red-500 text-xs" />
                                                 </span>
@@ -83,21 +83,20 @@ const TransactionTable = ({ transactions = [], onShowMore }) => {
                                                     <FaArrowDown className="text-green-500 text-xs" />
                                                 </span>
                                             )}
-                                            <span className={`text-sm font-medium ${
-                                                txn.type === 'Sent' ? 'text-red-600' : 'text-green-600'
-                                            }`}>
-                                                {txn.type}
+                                            <span className={`text-sm font-medium ${txn.type === 'debit' ? 'text-red-600' : 'text-green-600'
+                                                }`}>
+                                                {txn.type === 'debit' ? 'Paid/Debit' : 'Added/Credit'}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="py-3 px-4">
-                                        <span className="text-sm text-gray-700">
-                                            {formatAmount(txn.amount)}
+                                        <span className={`text-sm font-bold ${txn.type === 'debit' ? 'text-red-600' : 'text-green-600'}`}>
+                                            {txn.type === 'debit' ? '-' : '+'}{formatAmount(txn.amount)}
                                         </span>
                                     </td>
                                     <td className="py-3 px-4">
                                         <span className="text-sm text-gray-500">
-                                            {formatDate(txn.date)}
+                                            {formatDate(txn.createdAt)}
                                         </span>
                                     </td>
                                 </tr>

@@ -1,76 +1,46 @@
 // pages/profile/HelpSupportPage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     RaiseTicketCard,
     TicketTable,
     RaiseTicketModal,
     ViewTicketModal,
-    DeleteConfirmModal
+    DeleteConfirmModal,
+    EditTicketModal
 } from '../../../components/support';
+import ticketService from '../../../services/ticketService';
+import toast from 'react-hot-toast';
 
 const HelpSupportPage = () => {
     // State
     const [isRaiseModalOpen, setIsRaiseModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [ticketToDelete, setTicketToDelete] = useState(null);
+    const [tickets, setTickets] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Mock tickets data
-    const [tickets, setTickets] = useState([
-        {
-            id: 1,
-            ticketId: 'T1234567890',
-            subject: 'Payment not processed',
-            category: 'Payment Issue',
-            description: 'I made a payment for my booking but it shows as pending. Please help.',
-            status: 'pending',
-            lastUpdated: '2025-05-19',
-            createdAt: '2025-05-18T10:30:00',
-            attachments: [],
-            response: null,
-            responseDate: null
-        },
-        {
-            id: 2,
-            ticketId: 'T1234567890',
-            subject: 'Booking cancellation request',
-            category: 'Booking Issue',
-            description: 'I want to cancel my booking due to personal reasons.',
-            status: 'pending',
-            lastUpdated: '2025-05-19',
-            createdAt: '2025-05-17T14:20:00',
-            attachments: [],
-            response: null,
-            responseDate: null
-        },
-        {
-            id: 3,
-            ticketId: 'T1234567890',
-            subject: 'Refund not received',
-            category: 'Refund Request',
-            description: 'I cancelled my booking 5 days ago but haven\'t received my refund yet.',
-            status: 'pending',
-            lastUpdated: '2025-05-19',
-            createdAt: '2025-05-16T09:15:00',
-            attachments: [],
-            response: null,
-            responseDate: null
-        },
-        {
-            id: 4,
-            ticketId: 'T1234567890',
-            subject: 'App not loading',
-            category: 'Technical Problem',
-            description: 'The app is showing a blank screen when I try to open it.',
-            status: 'pending',
-            lastUpdated: '2025-05-19',
-            createdAt: '2025-05-15T16:45:00',
-            attachments: [],
-            response: null,
-            responseDate: null
+    // Load tickets on mount
+    useEffect(() => {
+        fetchTickets();
+    }, []);
+
+    const fetchTickets = async () => {
+        try {
+            setLoading(true);
+            const res = await ticketService.getMyTickets();
+            if (res.success) {
+                setTickets(res.data);
+            }
+        } catch (error) {
+            console.error('Error fetching tickets:', error);
+            toast.error('Failed to load tickets');
+        } finally {
+            setLoading(false);
         }
-    ]);
+    };
 
     // Handlers
     const handleRaiseTicket = () => {
@@ -78,24 +48,22 @@ const HelpSupportPage = () => {
     };
 
     const handleSubmitTicket = async (formData) => {
-        console.log('Submitting ticket:', formData);
+        try {
+            const res = await ticketService.createTicket({
+                subject: formData.subject,
+                description: formData.description,
+                priority: 'Medium',
+                attachments: formData.attachments
+            });
 
-        // Create new ticket
-        const newTicket = {
-            id: Date.now(),
-            ticketId: `T${Date.now().toString().slice(-10)}`,
-            subject: formData.subject,
-            description: formData.description,
-            status: 'pending',
-            lastUpdated: new Date().toISOString().split('T')[0],
-            createdAt: new Date().toISOString(),
-            attachments: formData.attachments || [],
-            response: null,
-            responseDate: null
-        };
-
-        setTickets(prev => [newTicket, ...prev]);
-        alert('Ticket raised successfully!');
+            if (res.success) {
+                toast.success('Ticket raised successfully!');
+                setIsRaiseModalOpen(false);
+                fetchTickets(); // Refresh list
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to raise ticket');
+        }
     };
 
     const handleViewTicket = (ticket) => {
@@ -104,25 +72,63 @@ const HelpSupportPage = () => {
     };
 
     const handleEditTicket = (ticket) => {
-        console.log('Editing ticket:', ticket);
-        // TODO: Open edit modal with ticket data
+        if (ticket.status !== 'Pending') {
+            toast.error('Only pending tickets can be edited');
+            return;
+        }
+        setSelectedTicket(ticket);
         setIsViewModalOpen(false);
-        alert('Edit functionality coming soon!');
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateTicket = async (ticketId, ticketData) => {
+        try {
+            const res = await ticketService.updateTicket(ticketId, ticketData);
+            if (res.success) {
+                toast.success('Ticket updated successfully!');
+                setIsEditModalOpen(false);
+                fetchTickets(); // Refresh list
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update ticket');
+        }
     };
 
     const handleDeleteClick = (ticketId) => {
+        // Find if ticket is deletable (must be pending)
+        const ticket = tickets.find(t => t._id === ticketId || t.id === ticketId);
+        if (ticket && ticket.status !== 'Pending') {
+            toast.error('Only pending tickets can be deleted');
+            return;
+        }
+        
         setTicketToDelete(ticketId);
         setIsDeleteModalOpen(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (ticketToDelete) {
-            setTickets(prev => prev.filter(t => t.id !== ticketToDelete));
-            setIsDeleteModalOpen(false);
-            setTicketToDelete(null);
-            alert('Ticket deleted successfully!');
+            try {
+                const res = await ticketService.deleteTicket(ticketToDelete);
+                if (res.success) {
+                    toast.success('Ticket deleted successfully!');
+                    setIsDeleteModalOpen(false);
+                    setTicketToDelete(null);
+                    fetchTickets(); // Refresh list
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to delete ticket');
+            }
         }
     };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1c335a]"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 relative">
@@ -152,7 +158,18 @@ const HelpSupportPage = () => {
                 }}
                 ticket={selectedTicket}
                 onEdit={handleEditTicket}
-                onDelete={handleDeleteClick}
+                onDelete={() => handleDeleteClick(selectedTicket._id)}
+            />
+
+            {/* Edit Ticket Modal */}
+            <EditTicketModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedTicket(null);
+                }}
+                ticket={selectedTicket}
+                onUpdate={handleUpdateTicket}
             />
 
             {/* Delete Confirmation Modal */}
@@ -173,3 +190,4 @@ const HelpSupportPage = () => {
 };
 
 export default HelpSupportPage;
+

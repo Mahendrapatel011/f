@@ -10,14 +10,16 @@ const PathologyCard = ({
     discount,
     rating,
     reviews,
+    offer,
     onAddToCart,
     onBookNow,
-    onClick
+    onClick,
+    className
 }) => {
     return (
         <div
             onClick={onClick}
-            className={`bg-white rounded-xl shadow-md overflow-hidden w-[280px] flex-shrink-0 border border-gray-100 hover:shadow-lg transition-shadow ${onClick ? 'cursor-pointer' : ''}`}
+            className={`bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow ${className || 'w-[280px] flex-shrink-0'} ${onClick ? 'cursor-pointer' : ''}`}
         >
             {/* Image Section */}
             <div className="relative h-[180px]">
@@ -29,8 +31,15 @@ const PathologyCard = ({
 
                 {/* Discount Badge */}
                 {discount && (
-                    <span className="absolute top-3 left-3 bg-[#1e3a5f] text-white text-xs font-semibold px-2 py-1 rounded">
+                    <span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
                         {discount}% OFF
+                    </span>
+                )}
+
+                {/* Offer Badge (Top Right) - From Offer Management */}
+                {offer && (
+                    <span className="absolute top-3 right-3 bg-green-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm border border-green-400">
+                        {offer.title}
                     </span>
                 )}
 

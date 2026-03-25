@@ -107,6 +107,8 @@ const OfferManagement = () => {
     const counts = {
         active: offers.filter(o => o.status === 'active').length,
         scheduled: offers.filter(o => o.status === 'scheduled').length,
+        pending: offers.filter(o => o.status === 'pending').length,
+        rejected: offers.filter(o => o.status === 'rejected').length,
         expired: offers.filter(o => o.status === 'expired').length
     };
 
